@@ -91,3 +91,96 @@ button:hover {
 .empty {
     color: #9ca3af;
 }
+
+/* =========================
+   TABLETS (<= 900px)
+========================= */
+@media (max-width: 900px) {
+    .wheel-container {
+        width: 450px;
+    }
+
+    canvas {
+        width: 450px;
+        height: 450px;
+    }
+
+    .roster-slot {
+        width: 90%;
+    }
+}
+
+/* =========================
+   SMARTPHONES (<= 600px)
+========================= */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .wheel-container {
+        width: 320px;
+    }
+
+    canvas {
+        width: 320px;
+        height: 320px;
+    }
+
+    .pointer {
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-top: 35px solid red;
+    }
+
+    button {
+        width: 90%;
+        font-size: 18px;
+        padding: 12px 20px;
+    }
+
+    #result {
+        font-size: 22px;
+    }
+
+    #draftButtons button {
+        width: 90%;
+    }
+
+    .roster-slot {
+        width: 95%;
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .position {
+        font-size: 16px;
+    }
+}
+
+/* =========================
+   VERY SMALL PHONES (<= 400px)
+========================= */
+@media (max-width: 400px) {
+    .wheel-container {
+        width: 280px;
+    }
+
+    canvas {
+        width: 280px;
+        height: 280px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+}
