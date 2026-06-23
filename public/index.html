@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2kWebsite</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <h1>Welcome to 2kWebsite</h1>
-    <p>This is a simple HTML page served by Express.js.</p>
-  </body>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Glücksrad</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>🏀 NBA Team Glücksrad</h1>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="600" height="600"></canvas>
+    </div>
+
+    <button id="spinBtn">Drehen</button>
+
+    <div id="result">Klicke auf Drehen</div>
+
+    <script src="script.js"></script>
+</body>
 </html>
