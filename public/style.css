@@ -18,6 +18,8 @@ h1 {
 }
 
 canvas {
+    display: block;
+    margin: 0 auto;
     border-radius: 50%;
     background: white;
 }
@@ -37,7 +39,7 @@ canvas {
 }
 
 button {
-    margin-top: 30px;
+    margin-top: 20px;
     padding: 15px 40px;
     font-size: 20px;
     border: none;
@@ -55,4 +57,37 @@ button:hover {
     margin-top: 25px;
     font-size: 28px;
     font-weight: bold;
+}
+
+#draftButtons {
+    display: none;
+    margin-top: 20px;
+}
+
+#draftButtons button {
+    display: block;
+    margin: 10px auto;
+}
+
+#rosterScreen {
+    display: none;
+}
+
+.roster-slot {
+    width: 400px;
+    margin: 10px auto;
+    padding: 15px;
+    background: #1f2937;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 20px;
+}
+
+.position {
+    color: #60a5fa;
+    font-weight: bold;
+}
+
+.empty {
+    color: #9ca3af;
 }

@@ -45,13 +45,14 @@ const sliceAngle = (2 * Math.PI) / teams.length;
 
 let currentRotation = 0;
 let spinning = false;
+let lastTeam = "";
 
 function drawWheel() {
+
     ctx.clearRect(0, 0, size, size);
 
     teams.forEach((team, i) => {
 
-        // Start bei -90° => erstes Feld oben
         const startAngle = i * sliceAngle - Math.PI / 2;
         const endAngle = startAngle + sliceAngle;
 
@@ -67,7 +68,6 @@ function drawWheel() {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Text
         ctx.save();
 
         ctx.translate(center, center);
@@ -82,7 +82,6 @@ function drawWheel() {
         ctx.restore();
     });
 
-    // Mittelpunkt
     ctx.beginPath();
     ctx.arc(center, center, 30, 0, Math.PI * 2);
     ctx.fillStyle = "#111827";
@@ -98,15 +97,12 @@ spinBtn.addEventListener("click", () => {
     spinning = true;
     result.innerHTML = "🎲 Dreht...";
 
-    // Gewinner vorher festlegen
     const winnerIndex = Math.floor(Math.random() * teams.length);
+
+    lastTeam = teams[winnerIndex];
 
     const segmentSize = 360 / teams.length;
 
-    /*
-      Gewinnersegment exakt unter Pfeil platzieren.
-      Da das Rad bei -90° startet, müssen wir das berücksichtigen.
-    */
     const targetAngle =
         360 -
         (winnerIndex * segmentSize + segmentSize / 2);
@@ -133,7 +129,73 @@ spinBtn.addEventListener("click", () => {
             <h1>${teams[winnerIndex]}</h1>
         `;
 
+        const buttons = document.getElementById("draftButtons");
+
+        buttons.style.display = "block";
+
+        document.getElementById("addP1").textContent =
+            `➕ Add Player from ${teams[winnerIndex]} to Person 1`;
+
+        document.getElementById("addP2").textContent =
+            `➕ Add Player from ${teams[winnerIndex]} to Person 2`;
+
         spinning = false;
 
     }, 6000);
+});
+
+const rosterScreen = document.getElementById("rosterScreen");
+const roster = document.getElementById("roster");
+const rosterTitle = document.getElementById("rosterTitle");
+
+function renderRoster(person) {
+
+    roster.innerHTML = "";
+
+    rosterTitle.textContent = person;
+
+    const slots = [
+        "PG", "PG",
+        "SG", "SG",
+        "SF", "SF",
+        "PF", "PF",
+        "C", "C"
+    ];
+
+    slots.forEach(pos => {
+
+        const div = document.createElement("div");
+
+        div.className = "roster-slot";
+
+        div.innerHTML = `
+            <span class="position">${pos}</span>
+            —
+            <span class="empty">Leer</span>
+        `;
+
+        roster.appendChild(div);
+    });
+}
+
+document.getElementById("addP1").addEventListener("click", () => {
+
+    document.getElementById("wheelScreen").style.display = "none";
+    rosterScreen.style.display = "block";
+
+    renderRoster("Person 1");
+});
+
+document.getElementById("addP2").addEventListener("click", () => {
+
+    document.getElementById("wheelScreen").style.display = "none";
+    rosterScreen.style.display = "block";
+
+    renderRoster("Person 2");
+});
+
+document.getElementById("backBtn").addEventListener("click", () => {
+
+    rosterScreen.style.display = "none";
+    document.getElementById("wheelScreen").style.display = "block";
 });
