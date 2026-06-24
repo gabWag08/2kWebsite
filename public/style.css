@@ -4,11 +4,24 @@ body {
     font-family: Arial, sans-serif;
     background: #111827;
     color: white;
+}
+
+/* =========================
+   HEADINGS
+========================= */
+
+h1,
+h2,
+h3 {
     text-align: center;
 }
 
-h1 {
-    margin-bottom: 20px;
+/* =========================
+   GLÜCKSRAD
+========================= */
+
+#wheelScreen {
+    text-align: center;
 }
 
 .wheel-container {
@@ -39,18 +52,22 @@ canvas {
 }
 
 button {
-    margin-top: 20px;
-    padding: 15px 40px;
-    font-size: 20px;
+    padding: 15px 30px;
+    font-size: 18px;
     border: none;
     border-radius: 10px;
     background: #2563eb;
     color: white;
     cursor: pointer;
+    transition: 0.2s;
 }
 
 button:hover {
     background: #1d4ed8;
+}
+
+#spinBtn {
+    margin-top: 25px;
 }
 
 #result {
@@ -61,65 +78,184 @@ button:hover {
 
 #draftButtons {
     display: none;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 #draftButtons button {
     display: block;
-    margin: 10px auto;
+    margin: 12px auto;
 }
 
-#rosterScreen {
+/* =========================
+   DRAFT SCREEN
+========================= */
+
+#draftScreen {
     display: none;
+    min-height: 100vh;
+}
+
+.draft-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.draft-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 25px;
+}
+
+/* =========================
+   SPIELER LISTE
+========================= */
+
+.players-panel {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+    height: calc(100vh - 180px);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#playerSearch {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 15px;
+
+    box-sizing: border-box;
+
+    font-size: 16px;
+}
+
+#playersList {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+
+#playersList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#playersList::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 10px;
+}
+
+/* Spieler */
+
+.player-card {
+    background: #374151;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+
+    cursor: grab;
+    user-select: none;
+
+    transition: 0.2s;
+}
+
+.player-card:hover {
+    transform: scale(1.02);
+}
+
+.roster-player-name {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.player-rating {
+    color: gold;
+    margin-top: 4px;
+}
+
+.player-era {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* =========================
+   ROSTER
+========================= */
+
+.roster-panel {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+#roster {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
 }
 
 .roster-slot {
-    width: 400px;
-    margin: 10px auto;
+    background: #374151;
+    border: 2px dashed #4b5563;
+
+    border-radius: 10px;
+
+    min-height: 75px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     padding: 15px;
-    background: #1f2937;
-    border-radius: 8px;
-    text-align: left;
-    font-size: 20px;
+
+    transition: 0.2s;
+}
+
+.roster-slot.drag-over {
+    border-color: #60a5fa;
+    background: #1e3a8a;
 }
 
 .position {
-    color: #60a5fa;
     font-weight: bold;
+    color: #60a5fa;
+    min-width: 40px;
 }
 
-.empty {
-    color: #9ca3af;
-}
-
-/* =========================
-   TABLETS (<= 900px)
-========================= */
-@media (max-width: 900px) {
-    .wheel-container {
-        width: 450px;
-    }
-
-    canvas {
-        width: 450px;
-        height: 450px;
-    }
-
-    .roster-slot {
-        width: 90%;
-    }
+.player-name {
+    text-align: right;
+    flex: 1;
 }
 
 /* =========================
-   SMARTPHONES (<= 600px)
+   MOBILE
 ========================= */
-@media (max-width: 600px) {
+
+@media (max-width: 1000px) {
+
+    .draft-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .players-panel {
+        height: 400px;
+    }
+
+}
+
+@media (max-width: 700px) {
+
     body {
         padding: 10px;
-    }
-
-    h1 {
-        font-size: 22px;
     }
 
     .wheel-container {
@@ -138,49 +274,15 @@ button:hover {
     }
 
     button {
-        width: 90%;
-        font-size: 18px;
-        padding: 12px 20px;
+        width: 100%;
     }
 
-    #result {
-        font-size: 22px;
+    .draft-header {
+        flex-direction: column;
     }
 
-    #draftButtons button {
-        width: 90%;
+    #roster {
+        grid-template-columns: 1fr;
     }
 
-    .roster-slot {
-        width: 95%;
-        font-size: 16px;
-        padding: 12px;
-    }
-
-    .position {
-        font-size: 16px;
-    }
-}
-
-/* =========================
-   VERY SMALL PHONES (<= 400px)
-========================= */
-@media (max-width: 400px) {
-    .wheel-container {
-        width: 280px;
-    }
-
-    canvas {
-        width: 280px;
-        height: 280px;
-    }
-
-    h1 {
-        font-size: 18px;
-    }
-
-    button {
-        font-size: 16px;
-        padding: 10px 15px;
-    }
 }
