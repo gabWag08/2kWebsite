@@ -87,6 +87,18 @@ button:hover {
 }
 
 /* =========================
+   Ramdom Number Generator
+========================= */
+.random-number-generator {
+    text-align: center;
+    margin-top: 20px;
+}
+.randButton {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* =========================
    DRAFT SCREEN
 ========================= */
 

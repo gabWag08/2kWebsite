@@ -326,6 +326,7 @@ spinBtn.addEventListener("click", () => {
 
 });
 
+
 // ======================================
 // DRAFT SCREEN ÖFFNEN
 // ======================================
@@ -686,3 +687,30 @@ rosterSlots.forEach(slot => {
 // ======================================
 
 renderRoster();
+
+function randomNumberGenerator(min, max) {
+    
+    const generateBtn = document.getElementById("generateBtn");
+    const minInput = document.getElementById("minValue");
+    const maxInput = document.getElementById("maxValue");
+    const result = document.getElementById("randomResult");
+
+    generateBtn.addEventListener("click", () => {
+        const min = Number(minInput.value);
+        const max = Number(maxInput.value);
+
+        if (!minInput.value || !maxInput.value) {
+            result.textContent = "Bitte beide Werte eingeben.";
+            return;
+        }
+
+        if (min > max) {
+            result.textContent = "Min darf nicht größer als Max sein.";
+            return;
+        }
+
+        const random = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        result.textContent = "🎲 Ergebnis: " + random;
+});
+}
