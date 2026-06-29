@@ -1,6 +1,5 @@
 // ======================================
-// NBA GLÜCKSRAD + DRAFT SYSTEM
-// TEIL 1
+// NBA 2K26 DRAFT SYSTEM
 // ======================================
 
 // ======================================
@@ -8,46 +7,19 @@
 // ======================================
 
 const teams = [
-    "Atlanta Hawks",
-    "Boston Celtics",
-    "Brooklyn Nets",
-    "Charlotte Hornets",
-    "Chicago Bulls",
-    "Cleveland Cavaliers",
-    "Dallas Mavericks",
-    "Denver Nuggets",
-    "Detroit Pistons",
-    "Golden State Warriors",
-    "Houston Rockets",
-    "Indiana Pacers",
-    "LA Clippers",
-    "Los Angeles Lakers",
-    "Memphis Grizzlies",
-    "Miami Heat",
-    "Milwaukee Bucks",
-    "Minnesota Timberwolves",
-    "New Orleans Pelicans",
-    "New York Knicks",
-    "Oklahoma City Thunder",
-    "Orlando Magic",
-    "Philadelphia 76ers",
-    "Phoenix Suns",
-    "Portland Trail Blazers",
-    "Sacramento Kings",
-    "San Antonio Spurs",
-    "Toronto Raptors",
-    "Utah Jazz",
-    "Washington Wizards"
+    "Atlanta Hawks", "Boston Celtics", "Brooklyn Nets",
+    "Charlotte Hornets", "Chicago Bulls", "Cleveland Cavaliers",
+    "Dallas Mavericks", "Denver Nuggets", "Detroit Pistons",
+    "Golden State Warriors", "Houston Rockets", "Indiana Pacers",
+    "LA Clippers", "Los Angeles Lakers", "Memphis Grizzlies",
+    "Miami Heat", "Milwaukee Bucks", "Minnesota Timberwolves",
+    "New Orleans Pelicans", "New York Knicks", "Oklahoma City Thunder",
+    "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns",
+    "Portland Trail Blazers", "Sacramento Kings", "San Antonio Spurs",
+    "Toronto Raptors", "Utah Jazz", "Washington Wizards"
 ];
 
-// ======================================
-// TEAM -> CSV
-// ======================================
-// SPÄTER EINFACH ANPASSEN
-// ======================================
-
 const teamFiles = {
-
     "Golden State Warriors": "CSVs/Warriors.csv",
     "Los Angeles Lakers": "CSVs/Lakers.csv",
     "Boston Celtics": "CSVs/Celtics.csv",
@@ -81,431 +53,177 @@ const teamFiles = {
 };
 
 // ======================================
-// ELEMENTE
-// ======================================
-
-const canvas = document.getElementById("wheel");
-const ctx = canvas.getContext("2d");
-
-const spinBtn = document.getElementById("spinBtn");
-const result = document.getElementById("result");
-
-const wheelScreen = document.getElementById("wheelScreen");
-const draftScreen = document.getElementById("draftScreen");
-
-const addP1 = document.getElementById("addP1");
-const addP2 = document.getElementById("addP2");
-
-const backBtn = document.getElementById("backBtn");
-
-const rosterTitle = document.getElementById("rosterTitle");
-const teamTitle = document.getElementById("teamTitle");
-
-// ======================================
 // STATE
 // ======================================
 
 let currentRotation = 0;
 let spinning = false;
-
 let currentTeam = "";
 let currentPerson = null;
-
 let teamPlayers = [];
+let filteredPlayers = [];
+let draggedPlayer = null;
+let pendingSlot = null; // for mobile tap-to-assign
+
+const person1 = { PG1: null, PG2: null, SG1: null, SG2: null, SF1: null, SF2: null, PF1: null, PF2: null, C1: null, C2: null };
+const person2 = { PG1: null, PG2: null, SG1: null, SG2: null, SF1: null, SF2: null, PF1: null, PF2: null, C1: null, C2: null };
 
 // ======================================
-// PERSON 1
+// NAVIGATION
 // ======================================
 
-const person1 = {
+function showScreen(id) {
+    ["homeScreen", "wheelScreen", "draftScreen", "numberGenScreen", "coinFlipScreen"]
+        .forEach(s => {
+            document.getElementById(s).style.display = (s === id) ? "" : "none";
+        });
+}
 
-    PG1: null,
-    PG2: null,
+document.getElementById("goToDraftwheel").addEventListener("click", () => showScreen("wheelScreen"));
+document.getElementById("goToNumberGen").addEventListener("click", () => showScreen("numberGenScreen"));
+document.getElementById("goToCoinFlip").addEventListener("click", () => showScreen("coinFlipScreen"));
 
-    SG1: null,
-    SG2: null,
+document.getElementById("wheelBackHome").addEventListener("click", () => showScreen("homeScreen"));
+document.getElementById("numBackHome").addEventListener("click", () => showScreen("homeScreen"));
+document.getElementById("coinBackHome").addEventListener("click", () => showScreen("homeScreen"));
 
-    SF1: null,
-    SF2: null,
-
-    PF1: null,
-    PF2: null,
-
-    C1: null,
-    C2: null
-};
-
-// ======================================
-// PERSON 2
-// ======================================
-
-const person2 = {
-
-    PG1: null,
-    PG2: null,
-
-    SG1: null,
-    SG2: null,
-
-    SF1: null,
-    SF2: null,
-
-    PF1: null,
-    PF2: null,
-
-    C1: null,
-    C2: null
-};
+document.getElementById("backBtn").addEventListener("click", () => {
+    showScreen("wheelScreen");
+});
 
 // ======================================
 // GLÜCKSRAD
 // ======================================
 
-const size = canvas.width;
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const resultEl = document.getElementById("result");
+const addP1 = document.getElementById("addP1");
+const addP2 = document.getElementById("addP2");
+const rosterTitle = document.getElementById("rosterTitle");
+const teamTitle = document.getElementById("teamTitle");
+
+const size = 600;
 const center = size / 2;
 const radius = center - 10;
-
 const sliceAngle = (2 * Math.PI) / teams.length;
 
-// ======================================
-// RAD ZEICHNEN
-// ======================================
-
 function drawWheel() {
-
     ctx.clearRect(0, 0, size, size);
 
     teams.forEach((team, i) => {
-
-        const startAngle =
-            i * sliceAngle - Math.PI / 2;
-
-        const endAngle =
-            startAngle + sliceAngle;
+        const startAngle = i * sliceAngle - Math.PI / 2;
+        const endAngle = startAngle + sliceAngle;
 
         ctx.beginPath();
-
         ctx.moveTo(center, center);
-
-        ctx.arc(
-            center,
-            center,
-            radius,
-            startAngle,
-            endAngle
-        );
-
+        ctx.arc(center, center, radius, startAngle, endAngle);
         ctx.closePath();
-
-        ctx.fillStyle =
-            i % 2 === 0
-                ? "#2563eb"
-                : "#60a5fa";
-
+        ctx.fillStyle = i % 2 === 0 ? "#2563eb" : "#60a5fa";
         ctx.fill();
-
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 2;
-
         ctx.stroke();
 
         ctx.save();
-
         ctx.translate(center, center);
-
-        ctx.rotate(
-            startAngle +
-            sliceAngle / 2
-        );
-
+        ctx.rotate(startAngle + sliceAngle / 2);
         ctx.fillStyle = "#fff";
         ctx.font = "11px Arial";
-
         ctx.textAlign = "right";
-
-        ctx.fillText(
-            team,
-            radius - 15,
-            4
-        );
-
+        ctx.fillText(team, radius - 15, 4);
         ctx.restore();
     });
 
     ctx.beginPath();
-
-    ctx.arc(
-        center,
-        center,
-        30,
-        0,
-        Math.PI * 2
-    );
-
+    ctx.arc(center, center, 30, 0, Math.PI * 2);
     ctx.fillStyle = "#111827";
     ctx.fill();
 }
 
 drawWheel();
 
-// ======================================
-// SPIN
-// ======================================
-
 spinBtn.addEventListener("click", () => {
-
     if (spinning) return;
-
     spinning = true;
+    resultEl.innerHTML = "🎲 Dreht...";
 
-    result.innerHTML = "🎲 Dreht...";
+    const winnerIndex = Math.floor(Math.random() * teams.length);
+    currentTeam = teams[winnerIndex];
 
-    const winnerIndex =
-        Math.floor(
-            Math.random() * teams.length
-        );
+    const segmentSize = 360 / teams.length;
+    const targetAngle = 360 - (winnerIndex * segmentSize + segmentSize / 2);
+    const currentNormalized = ((currentRotation % 360) + 360) % 360;
 
-    currentTeam =
-        teams[winnerIndex];
+    currentRotation += 360 * 6 + ((targetAngle - currentNormalized + 360) % 360);
 
-    const segmentSize =
-        360 / teams.length;
-
-    const targetAngle =
-        360 -
-        (
-            winnerIndex *
-            segmentSize +
-            segmentSize / 2
-        );
-
-    const currentNormalized =
-        (
-            (
-                currentRotation %
-                360
-            ) + 360
-        ) % 360;
-
-    currentRotation +=
-        360 * 6 +
-        (
-            (
-                targetAngle -
-                currentNormalized +
-                360
-            ) % 360
-        );
-
-    canvas.style.transition =
-        "transform 6s cubic-bezier(0.17,0.67,0.12,0.99)";
-
-    canvas.style.transform =
-        `rotate(${currentRotation}deg)`;
+    canvas.style.transition = "transform 6s cubic-bezier(0.17,0.67,0.12,0.99)";
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
 
     setTimeout(() => {
-
-        result.innerHTML = `
-            <h2>🏆 Dein Team:</h2>
-            <h1>${currentTeam}</h1>
-        `;
-
-        document.getElementById(
-            "draftButtons"
-        ).style.display = "block";
-
-        addP1.textContent =
-            `➕ Add Player from ${currentTeam} to Person 1`;
-
-        addP2.textContent =
-            `➕ Add Player from ${currentTeam} to Person 2`;
-
+        resultEl.innerHTML = `<h2>🏆 Dein Team:</h2><h1>${currentTeam}</h1>`;
+        document.getElementById("draftButtons").style.display = "block";
+        addP1.textContent = `➕ Add Player from ${currentTeam} to Person 1`;
+        addP2.textContent = `➕ Add Player from ${currentTeam} to Person 2`;
         spinning = false;
-
     }, 6000);
-
 });
 
-
-// ======================================
-// DRAFT SCREEN ÖFFNEN
-// ======================================
-
 addP1.addEventListener("click", async () => {
-
     currentPerson = person1;
-
-    rosterTitle.textContent =
-        "Person 1";
-
-    teamTitle.textContent =
-        currentTeam;
-
-    wheelScreen.style.display =
-        "none";
-
-    draftScreen.style.display =
-        "block";
-
+    rosterTitle.textContent = "Person 1";
+    teamTitle.textContent = currentTeam;
+    showScreen("draftScreen");
     await loadTeamPlayers();
-
     renderRoster();
 });
 
 addP2.addEventListener("click", async () => {
-
     currentPerson = person2;
-
-    rosterTitle.textContent =
-        "Person 2";
-
-    teamTitle.textContent =
-        currentTeam;
-
-    wheelScreen.style.display =
-        "none";
-
-    draftScreen.style.display =
-        "block";
-
+    rosterTitle.textContent = "Person 2";
+    teamTitle.textContent = currentTeam;
+    showScreen("draftScreen");
     await loadTeamPlayers();
-
     renderRoster();
 });
 
 // ======================================
-// ZURÜCK
-// ======================================
-
-backBtn.addEventListener("click", () => {
-
-    draftScreen.style.display =
-        "none";
-
-    wheelScreen.style.display =
-        "block";
-
-});
-
-// ======================================
-// ROSTER RENDERN
-// ======================================
-
-function renderRoster() {
-    if (!currentPerson) return;
-
-    const slots = document.querySelectorAll(".roster-slot");
-
-    slots.forEach(slot => {
-        const key = slot.dataset.slot;
-        const player = currentPerson[key];
-
-        const playerName = slot.querySelector(".player-name");
-
-        if (!player) {
-            playerName.textContent = "Leer";
-            return;
-        }
-
-        playerName.textContent = `${player.name} (${player.rating})`;
-    });
-}
-// ======================================
-// TEIL 2
-// CSV + SUCHEN + DRAG & DROP
-// ======================================
-
-const playersList =
-    document.getElementById("playersList");
-
-const playerSearch =
-    document.getElementById("playerSearch");
-
-let filteredPlayers = [];
-
-// ======================================
-// CSV LADEN
+// CSV LADEN + PARSER
 // ======================================
 
 async function loadTeamPlayers() {
-
-    playersList.innerHTML =
-        "<p>Lade Spieler...</p>";
-
+    const playersList = document.getElementById("playersList");
+    playersList.innerHTML = "<p>Lade Spieler...</p>";
     teamPlayers = [];
 
     try {
+        const file = teamFiles[currentTeam];
+        if (!file) { playersList.innerHTML = "<p>Keine CSV Datei gefunden.</p>"; return; }
 
-        const file =
-            teamFiles[currentTeam];
-
-        if (!file) {
-
-            playersList.innerHTML =
-                "<p>Keine CSV Datei gefunden.</p>";
-
-            return;
-        }
-
-        const response =
-            await fetch(file);
-
-        const csvText =
-            await response.text();
-
+        const response = await fetch(file);
+        const csvText = await response.text();
         parseCSV(csvText);
-
-        filteredPlayers =
-            [...teamPlayers];
-
+        filteredPlayers = [...teamPlayers];
         renderPlayers();
-
     } catch (err) {
-
         console.error(err);
-
-        playersList.innerHTML =
-            "<p>Fehler beim Laden der CSV.</p>";
+        playersList.innerHTML = "<p>Fehler beim Laden der CSV.</p>";
     }
 }
 
-// ======================================
-// CSV PARSER
-// ======================================
-
 function parseCSV(csvText) {
-
     teamPlayers = [];
+    const rows = csvText.split("\n").filter(r => r.trim());
 
-    const rows =
-        csvText
-        .split("\n")
-        .filter(row => row.trim());
-
-    // Header überspringen
     for (let i = 1; i < rows.length; i++) {
-
-        const cols =
-            rows[i]
-            .split(",");
-
-        const player = {
-
-            name:
-                cols[0]?.trim() || "",
-
-            rating:
-                cols[1]?.trim() || "",
-
-            team:
-                cols[2]?.trim() || "",
-
-            era:
-                cols[3]?.trim() || ""
-
-        };
-
-        teamPlayers.push(player);
+        const cols = rows[i].split(",");
+        teamPlayers.push({
+            name:   cols[0]?.trim() || "",
+            rating: cols[1]?.trim() || "",
+            team:   cols[2]?.trim() || "",
+            era:    cols[3]?.trim() || ""
+        });
     }
 }
 
@@ -514,172 +232,279 @@ function parseCSV(csvText) {
 // ======================================
 
 function renderPlayers() {
-
+    const playersList = document.getElementById("playersList");
     playersList.innerHTML = "";
 
     filteredPlayers.forEach(player => {
-
-        const card =
-            document.createElement("div");
-
-        card.className =
-            "player-card";
-
+        const card = document.createElement("div");
+        card.className = "player-card";
         card.draggable = true;
-
-        card.dataset.name =
-            player.name;
-
+        card.dataset.name = player.name;
         card.innerHTML = `
-            <div class="player-name">
-                ${player.name}
-            </div>
-
-            <div class="player-rating">
-                ⭐ ${player.rating}
-            </div>
-
-            <div class="player-era">
-                ${player.era}
-            </div>
+            <div class="roster-player-name">${player.name}</div>
+            <div class="player-rating">⭐ ${player.rating}</div>
+            <div class="player-era">${player.era}</div>
         `;
 
-        card.addEventListener(
-            "dragstart",
-            e => {
+        // ---- Desktop Drag ----
+        card.addEventListener("dragstart", e => {
+            draggedPlayer = player;
+            e.dataTransfer.setData("text/plain", JSON.stringify(player));
+            setTimeout(() => card.classList.add("dragging"), 0);
+        });
+        card.addEventListener("dragend", () => card.classList.remove("dragging"));
 
-                e.dataTransfer.setData(
-                    "text/plain",
-                    JSON.stringify(player)
-                );
-
-            }
-        );
+        // ---- Mobile Touch: tap card then tap slot ----
+        card.addEventListener("click", () => {
+            openPlayerPicker(player);
+        });
 
         playersList.appendChild(card);
-
     });
-
 }
 
 // ======================================
 // SUCHFUNKTION
 // ======================================
 
-playerSearch.addEventListener(
-    "input",
-    () => {
-
-        const value =
-            playerSearch.value
-            .toLowerCase()
-            .trim();
-
-        filteredPlayers =
-            teamPlayers.filter(player =>
-                player.name
-                .toLowerCase()
-                .includes(value)
-            );
-
-        renderPlayers();
-
-    }
-);
-
-// ======================================
-// DRAG & DROP
-// ======================================
-
-const rosterSlots =
-    document.querySelectorAll(
-        ".roster-slot"
-    );
-
-rosterSlots.forEach(slot => {
-
-    slot.addEventListener(
-        "dragover",
-        e => {
-
-            e.preventDefault();
-
-            slot.classList.add(
-                "drag-over"
-            );
-
-        }
-    );
-
-    slot.addEventListener(
-        "dragleave",
-        () => {
-
-            slot.classList.remove(
-                "drag-over"
-            );
-
-        }
-    );
-
-    slot.addEventListener(
-        "drop",
-        e => {
-
-            e.preventDefault();
-
-            slot.classList.remove(
-                "drag-over"
-            );
-
-            const data =
-                JSON.parse(
-                    e.dataTransfer.getData(
-                        "text/plain"
-                    )
-                );
-
-            const slotKey =
-                slot.dataset.slot;
-
-            // Speichern
-            currentPerson[slotKey] = {
-
-                name: data.name,
-                rating: data.rating,
-                era: data.era,
-                team: data.team
-
-            };
-
-            renderRoster();
-
-        }
-    );
-
+document.getElementById("playerSearch").addEventListener("input", () => {
+    const value = document.getElementById("playerSearch").value.toLowerCase().trim();
+    filteredPlayers = teamPlayers.filter(p => p.name.toLowerCase().includes(value));
+    renderPlayers();
 });
 
 // ======================================
-// SLOT LEEREN BEI DOPPELKLICK
+// MOBILE: PLAYER PICKER MODAL
 // ======================================
 
-rosterSlots.forEach(slot => {
+// When user taps a player card, we ask which slot
 
-    slot.addEventListener(
-        "dblclick",
-        () => {
+function openPlayerPicker(player) {
+    const modal = document.getElementById("playerPickerModal");
+    const list  = document.getElementById("modalPlayerList");
+    const title = document.getElementById("modalTitle");
 
-            const slotKey =
-                slot.dataset.slot;
+    title.textContent = `${player.name} zuweisen`;
+    list.innerHTML = "";
 
-            currentPerson[slotKey] =
-                null;
-
+    const slots = ["PG1","PG2","SG1","SG2","SF1","SF2","PF1","PF2","C1","C2"];
+    slots.forEach(key => {
+        const existing = currentPerson[key];
+        const item = document.createElement("div");
+        item.className = "modal-player-item";
+        item.innerHTML = `
+            <strong>${key}</strong>
+            <span style="color:#9ca3af; margin-left:10px; font-size:13px;">
+                ${existing ? existing.name : "Leer"}
+            </span>
+        `;
+        item.addEventListener("click", () => {
+            currentPerson[key] = { name: player.name, rating: player.rating, era: player.era, team: player.team };
             renderRoster();
+            closePlayerPicker();
+        });
+        list.appendChild(item);
+    });
 
+    modal.style.display = "block";
+}
+
+function closePlayerPicker() {
+    document.getElementById("playerPickerModal").style.display = "none";
+}
+
+document.getElementById("modalClose").addEventListener("click", closePlayerPicker);
+document.getElementById("modalOverlay").addEventListener("click", closePlayerPicker);
+
+// ======================================
+// ROSTER RENDERN
+// ======================================
+
+function renderRoster() {
+    if (!currentPerson) return;
+    const slots = document.querySelectorAll(".roster-slot");
+
+    slots.forEach(slot => {
+        const key = slot.dataset.slot;
+        const player = currentPerson[key];
+        const nameEl = slot.querySelector(".player-name");
+
+        if (!player) {
+            nameEl.textContent = "Leer";
+            slot.classList.remove("has-player");
+        } else {
+            nameEl.textContent = `${player.name} (${player.rating})`;
+            slot.classList.add("has-player");
         }
-    );
+    });
+}
 
+// ======================================
+// DRAG & DROP (Desktop)
+// ======================================
+
+const rosterSlots = document.querySelectorAll(".roster-slot");
+
+rosterSlots.forEach(slot => {
+    slot.addEventListener("dragover", e => {
+        e.preventDefault();
+        slot.classList.add("drag-over");
+    });
+    slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+    slot.addEventListener("drop", e => {
+        e.preventDefault();
+        slot.classList.remove("drag-over");
+        const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+        currentPerson[slot.dataset.slot] = { name: data.name, rating: data.rating, era: data.era, team: data.team };
+        renderRoster();
+    });
+});
+
+// ======================================
+// TOUCH DRAG & DROP (Mobile)
+// Long-press on card, drag to slot
+// ======================================
+
+let touchDragPlayer = null;
+let touchClone = null;
+
+function setupTouchDrag() {
+    // We re-run this after renderPlayers to attach to new cards
+    // Using event delegation on playersList instead
+
+    const playersList = document.getElementById("playersList");
+
+    playersList.addEventListener("touchstart", e => {
+        const card = e.target.closest(".player-card");
+        if (!card) return;
+        const playerName = card.dataset.name;
+        touchDragPlayer = filteredPlayers.find(p => p.name === playerName);
+    }, { passive: true });
+}
+
+// Slot touch events for drag-to-slot on mobile
+rosterSlots.forEach(slot => {
+    slot.addEventListener("touchstart", e => {
+        // If user taps directly on a slot (not dragging), open slot assignment via the players list tap-flow
+        // This is handled by the modal system
+    }, { passive: true });
+
+    // Clear button
+    const clearBtn = slot.querySelector(".clear-slot-btn");
+    clearBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        currentPerson[slot.dataset.slot] = null;
+        renderRoster();
+    });
+
+    // Tap slot = open picker to choose player
+    slot.addEventListener("click", e => {
+        if (e.target.classList.contains("clear-slot-btn")) return;
+        openSlotPicker(slot.dataset.slot);
+    });
+});
+
+// Tap on slot → show list of players to pick from
+function openSlotPicker(slotKey) {
+    if (filteredPlayers.length === 0) return; // no players loaded
+
+    const modal = document.getElementById("playerPickerModal");
+    const list  = document.getElementById("modalPlayerList");
+    const title = document.getElementById("modalTitle");
+
+    title.textContent = `Spieler für ${slotKey} wählen`;
+    list.innerHTML = "";
+
+    filteredPlayers.forEach(player => {
+        const item = document.createElement("div");
+        item.className = "modal-player-item";
+        item.innerHTML = `
+            <strong>${player.name}</strong>
+            <span style="color:gold; margin-left:8px; font-size:13px;">⭐ ${player.rating}</span>
+            <span style="color:#9ca3af; margin-left:6px; font-size:12px;">${player.era}</span>
+        `;
+        item.addEventListener("click", () => {
+            currentPerson[slotKey] = { name: player.name, rating: player.rating, era: player.era, team: player.team };
+            renderRoster();
+            closePlayerPicker();
+        });
+        list.appendChild(item);
+    });
+
+    modal.style.display = "block";
+}
+
+setupTouchDrag();
+
+// ======================================
+// NUMBER GENERATOR
+// ======================================
+
+document.getElementById("generateBtn").addEventListener("click", () => {
+    const minInput = document.getElementById("minValue");
+    const maxInput = document.getElementById("maxValue");
+    const resultEl = document.getElementById("randomResult");
+
+    if (!minInput.value || !maxInput.value) {
+        resultEl.textContent = "⚠️";
+        resultEl.style.fontSize = "28px";
+        resultEl.style.color = "#f87171";
+        setTimeout(() => {
+            resultEl.textContent = "";
+            resultEl.style.fontSize = "";
+            resultEl.style.color = "";
+        }, 1500);
+        return;
+    }
+
+    const min = Number(minInput.value);
+    const max = Number(maxInput.value);
+
+    if (min > max) {
+        resultEl.style.fontSize = "20px";
+        resultEl.style.color = "#f87171";
+        resultEl.textContent = "Min > Max!";
+        return;
+    }
+
+    const random = Math.floor(Math.random() * (max - min + 1)) + min;
+    resultEl.style.fontSize = "";
+    resultEl.style.color = "#60a5fa";
+    resultEl.textContent = random;
+});
+
+// ======================================
+// COIN FLIP
+// ======================================
+
+const coin = document.getElementById("coin");
+const flipBtn = document.getElementById("flipBtn");
+const coinResult = document.getElementById("coinResult");
+
+let coinFlipping = false;
+
+// We show heads or tails by rotating
+// heads = showing .coin-heads (front), tails = showing .coin-tails (back)
+// Simple: just animate and show emoji result
+
+flipBtn.addEventListener("click", () => {
+    if (coinFlipping) return;
+    coinFlipping = true;
+    coinResult.textContent = "";
+    coin.classList.remove("flipping");
+    void coin.offsetWidth; // reflow
+
+    const isHeads = Math.random() < 0.5;
+    const finalRotation = isHeads ? 1800 : 1980; // 1800 = even = heads face, 1980 = +180 = tails face
+    coin.style.setProperty("--final-rotation", finalRotation + "deg");
+    coin.classList.add("flipping");
+
+    setTimeout(() => {
+        coinResult.textContent = isHeads ? "🟡 HEADS" : "⚪ TAILS";
+        coinResult.style.color = isHeads ? "#fcd34d" : "#d1d5db";
+        coinResult.style.fontSize = "clamp(24px, 8vw, 48px)";
+        coinFlipping = false;
+    }, 1300);
 });
 
 // ======================================
@@ -687,30 +512,3 @@ rosterSlots.forEach(slot => {
 // ======================================
 
 renderRoster();
-
-function randomNumberGenerator(min, max) {
-    
-    const generateBtn = document.getElementById("generateBtn");
-    const minInput = document.getElementById("minValue");
-    const maxInput = document.getElementById("maxValue");
-    const result = document.getElementById("randomResult");
-
-    generateBtn.addEventListener("click", () => {
-        const min = Number(minInput.value);
-        const max = Number(maxInput.value);
-
-        if (!minInput.value || !maxInput.value) {
-            result.textContent = "Bitte beide Werte eingeben.";
-            return;
-        }
-
-        if (min > max) {
-            result.textContent = "Min darf nicht größer als Max sein.";
-            return;
-        }
-
-        const random = Math.floor(Math.random() * (max - min + 1)) + min;
-
-        result.textContent = "🎲 Ergebnis: " + random;
-});
-}
