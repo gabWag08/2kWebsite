@@ -704,3 +704,10 @@ canvas {
     .draft-header h2 { text-align: left; }
 
 }
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
