@@ -1,4 +1,49 @@
 /* =========================
+   BACKGROUND SYSTEM (FIXED FOR YOUR HTML)
+========================= */
+
+#homeScreen,
+#wheelScreen,
+#draftScreen,
+#numberGenScreen,
+#coinFlipScreen {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* dunkles Overlay für bessere Lesbarkeit */
+#homeScreen::before,
+#wheelScreen::before,
+#draftScreen::before,
+#numberGenScreen::before,
+#coinFlipScreen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 0;
+}
+
+/* alles über Overlay */
+#homeScreen > *,
+#wheelScreen > *,
+#draftScreen > *,
+#numberGenScreen > *,
+#coinFlipScreen > * {
+    position: relative;
+    z-index: 1;
+}
+
+#homeScreen { background-image: url('images/Jordan.jpg'); }
+#wheelScreen { background-image: url('images/kawhi.jpg'); }
+#numberGenScreen { background-image: url('images/iverson.jpg'); }
+#coinFlipScreen { background-image: url('images/lebron.jpg'); }
+#draftScreen { background-image: url('images/nba.jpg'); }
+
+/* =========================
    RESET & BASE
 ========================= */
 
@@ -454,7 +499,7 @@ canvas {
     padding: 14px;
     margin-bottom: 10px;
     cursor: pointer;
-    active: background #4b5563;
+    /*active: background #4b5563;*/
     transition: background 0.15s;
 }
 
