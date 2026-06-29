@@ -491,15 +491,19 @@ flipBtn.addEventListener("click", () => {
     if (coinFlipping) return;
     coinFlipping = true;
     coinResult.textContent = "";
+    
+    const coinInner = coin.querySelector(".coin-inner");
+    coinInner.style.transform = "";
     coin.classList.remove("flipping");
-    void coin.offsetWidth; // reflow
-
+    void coinInner.offsetWidth; // reflow auf coin-inner!
+    
     const isHeads = Math.random() < 0.5;
-    const finalRotation = isHeads ? 1800 : 1980; // 1800 = even = heads face, 1980 = +180 = tails face
+    const finalRotation = isHeads ? 1800 : 1980;
     coin.style.setProperty("--final-rotation", finalRotation + "deg");
     coin.classList.add("flipping");
 
     setTimeout(() => {
+        coinInner.style.transform = `rotateY(${finalRotation}deg)`;
         coinResult.textContent = isHeads ? "🟡 HEADS" : "⚪ TAILS";
         coinResult.style.color = isHeads ? "#fcd34d" : "#d1d5db";
         coinResult.style.fontSize = "clamp(24px, 8vw, 48px)";
