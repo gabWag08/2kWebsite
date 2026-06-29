@@ -163,6 +163,9 @@ spinBtn.addEventListener("click", () => {
 
     setTimeout(() => {
         resultEl.innerHTML = `<h2>🏆 Dein Team:</h2><h1>${currentTeam}</h1>`;
+        if(currentTeam == "Washington Wizards" || currentTeam == "Charlotte Hornets" || currentTeam == "New Orleans Pelicans" || currentTeam == "Indiana Pacers"){
+            resultEl.innerHTML += `<p>IIIIIIIh wie kacke</p>`;
+        }
         document.getElementById("draftButtons").style.display = "block";
         addP1.textContent = `➕ Add Player from ${currentTeam} to Person 1`;
         addP2.textContent = `➕ Add Player from ${currentTeam} to Person 2`;
