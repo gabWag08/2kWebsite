@@ -37,11 +37,11 @@
     z-index: 1;
 }
 
-#homeScreen { background-image: url('images/Jordan.jpg'); }
-#wheelScreen { background-image: url('images/kawhi.jpg'); }
-#numberGenScreen { background-image: url('images/iverson.jpg'); }
-#coinFlipScreen { background-image: url('images/lebron.jpg'); }
-#draftScreen { background-image: url('images/nba.jpg'); }
+#homeScreen { background-image: url('/images/Jordan.jpg'); }
+#wheelScreen { background-image: url('/images/kawhi.jpg'); }
+#numberGenScreen { background-image: url('/images/iverson.jpg'); }
+#coinFlipScreen { background-image: url('/images/lebron.jpg'); }
+#draftScreen { background-image: url('/images/nba.jpg'); }
 
 /* =========================
    RESET & BASE
